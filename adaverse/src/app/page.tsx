@@ -1,13 +1,16 @@
-import Link from "next/link"
+"use client"
+import { useState } from "react"
+import  Header  from "../components/Header"
 
 export default function Accueil() {
+    const [isForm, setIsForm] = useState(false)
+
     return(
     <div>
-        <h1>Bienvenue sur Adaverse</h1>
+      
+        <Header/>
         <h1>Vous pouvez proposer un ou plusieurs projets </h1>
-        <button>
-            <Link href="/proposez-un-projet">Proposez un projet</Link>
-        </button>
+       
     </div>
     )
 }
