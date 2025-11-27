@@ -1,20 +1,9 @@
-import { db, prjetudiant } from "@/db";
-import { eq } from "drizzle-orm";
+import { db,prjetudiant } from "../../db";
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
-  const id = Number(params.id);
-
-  const result = await db
-    .select()
-    .from(prjetudiant)
-    .where(eq(prjetudiant.id, id));
-
-  if (result.length === 0) {
-    return new Response(JSON.stringify({ error: "Projet introuvable" }), { status: 404 });
-  }
-
-  return new Response(JSON.stringify(result[0]), {
+export async function GET() {
+  const data = await db.select().from(prjetudiant);
+  return new Response(JSON.stringify(data), {
     headers: { "Content-Type": "application/json" }
   });
 }
- 
+
