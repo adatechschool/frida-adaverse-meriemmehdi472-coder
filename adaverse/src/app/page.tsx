@@ -9,7 +9,6 @@ export default function Accueil() {
     <div>
       
         <Header/>
-        <h1>Vous pouvez proposer un ou plusieurs projets </h1>
        
     </div>
     )
