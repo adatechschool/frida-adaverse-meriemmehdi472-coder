@@ -1,4 +1,4 @@
-INSERT INTO  projets_Ada (nom_prj) VALUES
+INSERT INTO  projets_ada (nom_prj) VALUES
 ('Ada Quiz'), 
 ('Dataviz'), 
 ('Adaopte'), 
