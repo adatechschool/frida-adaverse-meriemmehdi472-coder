@@ -17,7 +17,7 @@ export default function Header() {
     })
 useEffect(()=>{
     if(isForm){
-        fetch("/prj_etudiants")
+        fetch("/api/prj_etudiants")
         .then(res=> res.json())
         .then(data => setIsProjets(data))
         .catch(err => console.error(err))
@@ -29,22 +29,25 @@ useEffect(()=>{
   setIsFormData(prev => ({ ...prev, [name]: value }))
  }
 
+
+
 const updateSubmit= async (e: React.FormEvent<HTMLFormElement>) =>{
     e.preventDefault();
+   
     try{
-        await fetch("/prj_etudiants",{
+        await fetch("/api/prj_etudiants",{
             method : "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(isFormData),
         })
-//         setIsForm(false)
-//         setIsFormData({
-// titre: "",
-// lien_git: "",
-// lien_demo: "",
-// promotions_ada_id: "",
-// projets_ada_id: "",
-// });
+        setIsForm(false)
+        setIsFormData({
+           titre: "",
+           lien_git: "",
+           lien_demo: "",
+           promotions_ada_id: "",
+           projets_ada_id: "",
+});
         
 
     } catch(err){
