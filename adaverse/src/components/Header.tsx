@@ -184,7 +184,6 @@ export default function Header() {
 
   const [isFormData, setIsFormData] = useState({
     titre: "",
-    illustration:"",
     lien_git: "",
     lien_demo: "",
     promotions_ada_id: "",
@@ -223,6 +222,7 @@ export default function Header() {
     // debug data envoyées
     console.log("Données envoyées :", {
       ...isFormData,
+      illustration:"",
       promotions_ada_id: Number(isFormData.promotions_ada_id),
       projets_ada_id: Number(isFormData.projets_ada_id),
     });
@@ -245,8 +245,7 @@ export default function Header() {
 
       setIsFormData({
         titre: "",
-        illustration: ""
-,        lien_git: "",
+       lien_git: "",
         lien_demo: "",
         promotions_ada_id: "",
         projets_ada_id: "",
