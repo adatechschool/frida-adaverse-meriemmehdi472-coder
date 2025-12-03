@@ -59,8 +59,6 @@ export default function Header() {
       alert("Projet ajouté avec succès !");
       setFormData({
         titre: "",
-        adrs_web_perso: "",
-        illustration: "",
         lien_git: "",
         lien_demo: "",
         date_crea: "",
@@ -151,7 +149,89 @@ export default function Header() {
         >
           Ajouter
         </button>
-      </form>
-    </header>
+
+        {isForm && (
+          <div className="popUp">
+            <div className="formContainer">
+              <h2>Proposez un projet</h2>
+
+              <form onSubmit={updateSubmit}>
+                <h3>TITRE</h3>
+                <input
+                  type="text"
+                  name="titre"
+                  placeholder="Titre du projet"
+                  value={isFormData.titre}
+                  onChange={updateForm}
+                  required
+                />
+
+                <h3>URL Github</h3>
+                <input
+                  type="text"
+                  name="lien_git"
+                  placeholder="Lien github"
+                  value={isFormData.lien_git}
+                  onChange={updateForm}
+                  required
+                />
+
+                <h3>URL Démo</h3>
+                <input
+                  type="text"
+                  name="lien_demo"
+                  placeholder="Lien demo"
+                  value={isFormData.lien_demo}
+                  onChange={updateForm}
+                  required
+                />
+
+                <h3>Promotions ADA</h3>
+                <label>
+                  Choisir une promotion
+                  <select
+                    name="promotions_ada_id"
+                    value={isFormData.promotions_ada_id}
+                    onChange={updateForm}
+                    required
+                  >
+                    <option value="">Sélectionner une promo</option>
+                    <option value="1">Fatoumata Kébé</option>
+                    <option value="2">Frances Spence</option>
+                    <option value="3">Frida Kahlo</option>
+                    <option value="4">Grace Hopper</option>
+                  </select>
+                </label>
+
+                <h3>Projets ADA</h3>
+                <label>
+                  Choisir un projet
+                  <select
+                    name="projets_ada_id"
+                    value={isFormData.projets_ada_id}
+                    onChange={updateForm}
+                    required
+                  >
+                    <option value="">Sélectionner un projet</option>
+
+                    {/* Projet de base */}
+                    <option value="4">Ada Quiz</option>
+
+                    {/* Projets fetchés */}
+                    {isProjets.map(p => (
+                      <option key={p.id} value={p.id}>
+                        {p.nom}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <button type="submit">Envoyer</button>
+              </form>
+            </div>
+          </div>
+        )}
+      </header>
+    </div>
   );
 }
