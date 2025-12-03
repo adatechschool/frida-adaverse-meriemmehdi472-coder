@@ -1,20 +1,25 @@
+import { db, prjetudiant } from "@/db";
+import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/db"; // ton client Drizzle
-import { prjetudiant } from "@/db/schema"; // ton schema Drizzle
 
-// GET /api/prj_etudiant
-export async function GET() {
-  try {
-    const projets = await db.select().from(prjetudiant);
-    return NextResponse.json(projets);
-  } catch (err) {
-    console.error("Erreur GET prj_etudiant :", err);
-    return NextResponse.json(
-      { error: "Impossible de récupérer les projets" },
-      { status: 500 }
-    );
+export async function GET(
+  _req: NextRequest,
+  context: { params: { id: string } }
+) {
+  const id = Number(context.params.id);
+
+  const result = await db
+    .select()
+    .from(prjetudiant)
+    .where(eq(prjetudiant.id, id));
+
+  if (result.length === 0) {
+    return NextResponse.json({ error: "Projet introuvable" }, { status: 404 });
   }
+
+  return NextResponse.json(result[0]);
 }
+
 
 // // POST /api/prj_etudiant
 // export async function POST(req: NextRequest) {
