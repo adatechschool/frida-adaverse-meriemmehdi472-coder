@@ -1,8 +1,12 @@
 import { db, prjetudiant } from "@/db";
 import { eq } from "drizzle-orm";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
-  const id = Number(params.id);
+export async function GET(
+  _req: NextRequest,
+  context: { params: { id: string } }
+) {
+  const id = Number(context.params.id);
 
   const result = await db
     .select()
@@ -10,11 +14,8 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     .where(eq(prjetudiant.id, id));
 
   if (result.length === 0) {
-    return new Response(JSON.stringify({ error: "Projet introuvable" }), { status: 404 });
+    return NextResponse.json({ error: "Projet introuvable" }, { status: 404 });
   }
 
-  return new Response(JSON.stringify(result[0]), {
-    headers: { "Content-Type": "application/json" }
-  });
+  return NextResponse.json(result[0]);
 }
-
