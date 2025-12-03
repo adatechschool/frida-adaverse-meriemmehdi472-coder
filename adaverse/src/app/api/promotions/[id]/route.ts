@@ -17,4 +17,3 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     headers: { "Content-Type": "application/json" }
   });
 }
-

@@ -1,15 +1,27 @@
-import { NextRequest, NextResponse } from "next/server";
-import { db,prjetudiant } from "@/db"
+import { NextRequest, NextResponse } from 'next/server'
 
+// GET /api/prj_etudiants
+export async function GET(request: NextRequest) {
+  return NextResponse.json({
+    message: "GET OK - route fonctionne"
+  })
+}
 
-export async function GET() {
+// POST /api/prj_etudiants
+export async function POST(request: NextRequest) {
+  try {
+    const data = await request.json()
 
-  try{
-  const data = await db.select().from(prjetudiant);
-   return NextResponse.json(data);
-  } catch (err) {
-    console.error("Erreur GET /api/prj_etudiants:", err);
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+    return NextResponse.json({
+      message: "POST OK - données reçues",
+      data
+    })
+    
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Erreur lors du traitement du POST" },
+      { status: 400 }
+    )
   }
 }
 // export async function POST(req: NextRequest) {
