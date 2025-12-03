@@ -27,7 +27,10 @@ export default function Header() {
     projets_ada_id: "",
   });
 
-  const updateSubmit = async () => {
+  // ---- Envoi du formulaire ----
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
     const { titre, date_crea, projets_ada_id, promotions_ada_id } = formData;
 
     if (!titre || !date_crea || !projets_ada_id || !promotions_ada_id) {
@@ -39,7 +42,11 @@ export default function Header() {
       const res = await fetch("/api/prj_etudiant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          promotions_ada_id: Number(formData.promotions_ada_id),
+          projets_ada_id: Number(formData.projets_ada_id),
+        }),
       });
 
       if (!res.ok) {
@@ -67,56 +74,84 @@ export default function Header() {
     }
   };
 
+  // ---- Mise à jour des champs ----
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
   return (
     <header className="bg-white shadow p-4">
       <h1 className="text-xl font-bold mb-4">Ajouter un projet</h1>
-      <div className="flex flex-col gap-2 max-w-md">
+      <form className="flex flex-col gap-2 max-w-md" onSubmit={handleSubmit}>
         <input
+          name="titre"
           type="text"
           placeholder="Titre"
           value={formData.titre}
-          onChange={(e) => setFormData({ ...formData, titre: e.target.value })}
+          onChange={handleChange}
         />
         <input
+          name="date_crea"
           type="date"
           placeholder="Date de création"
           value={formData.date_crea}
-          onChange={(e) => setFormData({ ...formData, date_crea: e.target.value })}
+          onChange={handleChange}
         />
         <select
+          name="projets_ada_id"
           value={formData.projets_ada_id}
-          onChange={(e) => setFormData({ ...formData, projets_ada_id: e.target.value })}
+          onChange={handleChange}
         >
           <option value="">Sélectionner un projet</option>
           <option value="1">Adaverse</option>
         </select>
         <select
+          name="promotions_ada_id"
           value={formData.promotions_ada_id}
-          onChange={(e) => setFormData({ ...formData, promotions_ada_id: e.target.value })}
+          onChange={handleChange}
         >
           <option value="">Sélectionner une promotion</option>
           <option value="2">Promotion 2</option>
           <option value="3">Promotion 3</option>
         </select>
         <input
+          name="lien_git"
           type="text"
           placeholder="Lien GitHub"
           value={formData.lien_git}
-          onChange={(e) => setFormData({ ...formData, lien_git: e.target.value })}
+          onChange={handleChange}
         />
         <input
+          name="lien_demo"
           type="text"
           placeholder="Lien démo"
           value={formData.lien_demo}
-          onChange={(e) => setFormData({ ...formData, lien_demo: e.target.value })}
+          onChange={handleChange}
+        />
+        <input
+          name="adrs_web_perso"
+          type="text"
+          placeholder="Adresse Web Perso"
+          value={formData.adrs_web_perso}
+          onChange={handleChange}
+        />
+        <input
+          name="illustration"
+          type="text"
+          placeholder="Illustration"
+          value={formData.illustration}
+          onChange={handleChange}
         />
         <button
+          type="submit"
           className="bg-blue-600 text-white p-2 rounded mt-2"
-          onClick={updateSubmit}
         >
           Ajouter
         </button>
-      </div>
+      </form>
     </header>
   );
 }

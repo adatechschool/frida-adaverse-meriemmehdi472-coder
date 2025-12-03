@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/db"; // ton client Drizzle
-import { prjetudiant } from "@/db/schema"; // ton schema Drizzle
+import { db } from "@/db";
+import { prjetudiant } from "@/db/schema";
 
 // ===========================
-// GET /api/prj_etudiant
+// GET /api/prj_etudiants
 // ===========================
 export async function GET() {
   try {
     const projets = await db.select().from(prjetudiant);
-    return NextResponse.json(projets);
+    console.log("GET /api/prj_etudiants OK");
+
+    return NextResponse.json(projets, { status: 200 });
   } catch (err) {
-    console.error("Erreur GET prj_etudiant :", err);
+    console.error("Erreur GET prj_etudiants :", err);
+
     return NextResponse.json(
       { error: "Impossible de récupérer les projets." },
       { status: 500 }
@@ -19,60 +22,61 @@ export async function GET() {
 }
 
 // ===========================
-// POST /api/prj_etudiant
+// POST /api/prj_etudiants
 // ===========================
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const data = await request.json();
+    const data = await req.json();
     console.log("Données reçues :", data);
 
     const {
       titre,
-      illustration = "",
-      adrs_web_perso = "",
       lien_git,
       lien_demo,
-      date_crea,
-      date_pub = null,
-      projets_ada_id,
       promotions_ada_id,
+      projets_ada_id,
+      adrs_web_perso,
+      illustration,
+      date_crea,
+      date_pub,
     } = data;
 
-    // Log les valeurs des champs pour debugging
-    console.log({ titre, lien_git, lien_demo, date_crea, projets_ada_id, promotions_ada_id });
-
-    // Validation simple des champs obligatoires
-    if (!titre || !lien_git || !lien_demo || !date_crea || !projets_ada_id || !promotions_ada_id) {
+    // Champs obligatoires
+    if (!titre || !lien_git || !lien_demo || !promotions_ada_id || !projets_ada_id) {
       return NextResponse.json(
         { error: "Tous les champs obligatoires doivent être remplis." },
         { status: 400 }
       );
     }
 
-    const [newProjet] = await db
+    const projetInsert = await db
       .insert(prjetudiant)
       .values({
         titre,
-        illustration,
-        adrs_web_perso,
+        adrs_web_perso: adrs_web_perso || null,
+        illustration: illustration || null,
         lien_git,
         lien_demo,
-        date_crea,
-        date_pub,
-        projets_ada_id: Number(projets_ada_id),
+        date_crea: date_crea || new Date(),
+        date_pub: date_pub || new Date(),
         promotions_ada_id: Number(promotions_ada_id),
+        projets_ada_id: Number(projets_ada_id),
       })
       .returning();
 
     return NextResponse.json(
-      { message: "Projet ajouté avec succès", projet: newProjet },
+      { message: "Projet ajouté avec succès !", projet: projetInsert[0] },
       { status: 201 }
     );
-  } catch (error) {
-    console.error("Erreur POST prj_etudiant :", error);
-    return NextResponse.json(
-      { error: "Erreur serveur lors de l'ajout du projet." },
-      { status: 500 }
-    );
+
+  } catch (err: any) {
+    console.error("Erreur POST /api/prj_etudiant :", err);
+
+    let message = "Erreur serveur lors de l'ajout du projet.";
+    if (err.code === "23503") {
+      message = "L'id promotion ou projet ADA n'existe pas.";
+    }
+
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
