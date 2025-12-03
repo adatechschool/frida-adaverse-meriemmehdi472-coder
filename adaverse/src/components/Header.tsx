@@ -1,153 +1,271 @@
+// "use client";
+
+// import { useEffect, useState } from "react";
+
+// interface Projet {
+//   id: number;
+//   nom: string;
+// }
+
+// export default function Header() {
+//   const [isProjets, setIsProjets] = useState<Projet[]>([]);
+//   const [isForm, setIsForm] = useState(false);
+//   const [isFormData, setIsFormData] = useState({
+//     titre: "",
+//     adrs_web_perso: "",
+//     illustration: "",
+//     lien_git: "",
+//     lien_demo: "",
+//     date_crea: "",
+//     promotions_ada_id: "",
+//     projets_ada_id: "",
+//   });
+
+//   // ---- Fetch des projets ----
+//   useEffect(() => {
+//     if (isForm) {
+//       fetch("/api/prj_etudiant")
+//         .then(res => res.json())
+//         .then(json => {
+//           setIsProjets(Array.isArray(json) ? json : []);
+//         })
+//         .catch(err => console.error(err));
+//     }
+//   }, [isForm]);
+
+//   // ---- Mise à jour du formulaire ----
+//   const updateForm = (
+//     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+//   ) => {
+//     const { name, value } = e.target;
+//     setIsFormData(prev => ({ ...prev, [name]: value }));
+//   };
+
+//   // ---- Envoi du POST ----
+//   const updateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+//     e.preventDefault();
+
+//     try {
+//       const res = await fetch("/api/prj_etudiant", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({
+//           ...isFormData,
+//           date_pub: isFormData.date_crea || null, // Adapté à ta table
+//         }),
+//       });
+
+//       const data = await res.json();
+//       if (!res.ok) throw new Error(data.error || "Erreur serveur");
+
+//       setIsForm(false);
+//       setIsFormData({
+//         titre: "",
+//         adrs_web_perso: "",
+//         illustration: "",
+//         lien_git: "",
+//         lien_demo: "",
+//         date_crea: "",
+//         promotions_ada_id: "",
+//         projets_ada_id: "",
+//       });
+
+//       console.log("Projet ajouté :", data.projet);
+//     } catch (err) {
+//       console.error(err);
+//       alert("Erreur lors de l'ajout du projet. Vérifiez la console.");
+//     }
+//   };
+
+//   return (
+//     <div>
+//       <header>
+//         <h1>Bienvenue sur Adaverse</h1>
+
+//         <button id="btnSubmit" onClick={() => setIsForm(true)}>
+//           Soumettre un projet
+//         </button>
+
+//         {isForm && (
+//           <div className="popUp">
+//             <div className="formContainer">
+//               <h2>Proposez un projet</h2>
+
+//               <form onSubmit={updateSubmit}>
+//                 <h3>TITRE</h3>
+//                 <input
+//                   type="text"
+//                   name="titre"
+//                   placeholder="Titre du projet"
+//                   value={isFormData.titre}
+//                   onChange={updateForm}
+//                   required
+//                 />
+
+//                 <h3>URL Github</h3>
+//                 <input
+//                   type="text"
+//                   name="lien_git"
+//                   placeholder="Lien github"
+//                   value={isFormData.lien_git}
+//                   onChange={updateForm}
+//                   required
+//                 />
+
+//                 <h3>URL Démo</h3>
+//                 <input
+//                   type="text"
+//                   name="lien_demo"
+//                   placeholder="Lien demo"
+//                   value={isFormData.lien_demo}
+//                   onChange={updateForm}
+//                   required
+//                 />
+
+//                 <h3>Promotions ADA</h3>
+//                 <label>
+//                   Choisir une promotion
+//                   <select
+//                     name="promotions_ada_id"
+//                     value={isFormData.promotions_ada_id}
+//                     onChange={updateForm}
+//                     required
+//                   >
+//                     <option value="">Sélectionner une promo</option>
+//                     <option value="fatoumata_kebe">Fatoumata Kébé</option>
+//                     <option value="frances_spence">Frances Spence</option>
+//                     <option value="frida_khalo">Frida Kahlo</option>
+//                     <option value="grace_hoper">Grace Hopper</option>
+//                   </select>
+//                 </label>
+
+//                 <h3>Projets ADA</h3>
+//                 <label>
+//                   Choisir un projet
+//                   <select
+//                     name="projets_ada_id"
+//                     value={isFormData.projets_ada_id}
+//                     onChange={updateForm}
+//                     required
+//                   >
+//                     <option value="">Sélectionner un projet</option>
+//                     <option value="adaverse">Adaverse</option>
+//                     {isProjets.map(p => (
+//                       <option key={p.id} value={p.id}>
+//                         {p.nom}
+//                       </option>
+//                     ))}
+//                   </select>
+//                 </label>
+
+    
+
+//                 <button type="submit">Envoyer</button>
+//               </form>
+//             </div>
+//           </div>
+//         )}
+//       </header>
+//     </div>
+//   );
+// }
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-interface FormData {
-  titre: string;
-  adrs_web_perso: string;
-  illustration: string;
-  lien_git: string;
-  lien_demo: string;
-  date_crea: string;
-  date_pub: string;
-  promotions_ada_id: string;
-  projets_ada_id: string;
+interface Projet {
+  id: number;
+  nom: string;
 }
 
 export default function Header() {
-  const [formData, setFormData] = useState<FormData>({
+  const [isProjets, setIsProjets] = useState<Projet[]>([]);
+  const [isForm, setIsForm] = useState(false);
+
+  const [isFormData, setIsFormData] = useState({
     titre: "",
-    adrs_web_perso: "",
-    illustration: "",
     lien_git: "",
     lien_demo: "",
-    date_crea: "",
-    date_pub: "",
     promotions_ada_id: "",
     projets_ada_id: "",
   });
 
-  // ---- Envoi du formulaire ----
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  // ---- Fetch des projets ----
+  useEffect(() => {
+    if (isForm) {
+      fetch("/api/prj_etudiant")
+        .then(res => res.json())
+        .then(json => {
+          if (Array.isArray(json)) {
+            setIsProjets(json);
+          } else {
+            console.error("Réponse API inattendue :", json);
+            setIsProjets([]);
+          }
+        })
+        .catch(err => console.error(err));
+    }
+  }, [isForm]);
+
+  // ---- Mise à jour du formulaire ----
+  const updateForm = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setIsFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // ---- Envoi du POST ----
+  const updateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { titre, date_crea, projets_ada_id, promotions_ada_id } = formData;
-
-    if (!titre || !date_crea || !projets_ada_id || !promotions_ada_id) {
-      alert("Tous les champs obligatoires doivent être remplis.");
-      return;
-    }
+    // debug data envoyées
+    console.log("Données envoyées :", {
+      ...isFormData,
+      illustration:"",
+      promotions_ada_id: Number(isFormData.promotions_ada_id),
+      projets_ada_id: Number(isFormData.projets_ada_id),
+    });
 
     try {
       const res = await fetch("/api/prj_etudiant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...formData,
-          promotions_ada_id: Number(formData.promotions_ada_id),
-          projets_ada_id: Number(formData.projets_ada_id),
+          ...isFormData,
+          promotions_ada_id: Number(isFormData.promotions_ada_id),
+          projets_ada_id: Number(isFormData.projets_ada_id),
         }),
       });
 
-      if (!res.ok) {
-        const err = await res.text();
-        console.error("Erreur POST:", err);
-        alert("Erreur lors de l'ajout du projet.");
-        return;
-      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Erreur serveur");
 
-      alert("Projet ajouté avec succès !");
-      setFormData({
+      setIsForm(false);
+
+      setIsFormData({
         titre: "",
         lien_git: "",
         lien_demo: "",
-        date_crea: "",
-        date_pub: "",
         promotions_ada_id: "",
         projets_ada_id: "",
       });
+
+      console.log("Projet ajouté :", data.projet);
+
     } catch (err) {
       console.error(err);
-      alert("Erreur réseau.");
+      alert("Erreur lors de l'ajout du projet. Vérifiez la console.");
     }
   };
 
-  // ---- Mise à jour des champs ----
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
   return (
-    <header className="bg-white shadow p-4">
-      <h1 className="text-xl font-bold mb-4">Ajouter un projet</h1>
-      <form className="flex flex-col gap-2 max-w-md" onSubmit={handleSubmit}>
-        <input
-          name="titre"
-          type="text"
-          placeholder="Titre"
-          value={formData.titre}
-          onChange={handleChange}
-        />
-        <input
-          name="date_crea"
-          type="date"
-          placeholder="Date de création"
-          value={formData.date_crea}
-          onChange={handleChange}
-        />
-        <select
-          name="projets_ada_id"
-          value={formData.projets_ada_id}
-          onChange={handleChange}
-        >
-          <option value="">Sélectionner un projet</option>
-          <option value="1">Adaverse</option>
-        </select>
-        <select
-          name="promotions_ada_id"
-          value={formData.promotions_ada_id}
-          onChange={handleChange}
-        >
-          <option value="">Sélectionner une promotion</option>
-          <option value="2">Promotion 2</option>
-          <option value="3">Promotion 3</option>
-        </select>
-        <input
-          name="lien_git"
-          type="text"
-          placeholder="Lien GitHub"
-          value={formData.lien_git}
-          onChange={handleChange}
-        />
-        <input
-          name="lien_demo"
-          type="text"
-          placeholder="Lien démo"
-          value={formData.lien_demo}
-          onChange={handleChange}
-        />
-        <input
-          name="adrs_web_perso"
-          type="text"
-          placeholder="Adresse Web Perso"
-          value={formData.adrs_web_perso}
-          onChange={handleChange}
-        />
-        <input
-          name="illustration"
-          type="text"
-          placeholder="Illustration"
-          value={formData.illustration}
-          onChange={handleChange}
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 text-white p-2 rounded mt-2"
-        >
-          Ajouter
+    <div>
+      <header>
+        <h1>Bienvenue sur Adaverse</h1>
+
+        <button id="btnSubmit" onClick={() => setIsForm(true)}>
+          Soumettre un projet
         </button>
 
         {isForm && (
