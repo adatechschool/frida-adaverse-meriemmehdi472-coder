@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 interface Projet {
   id: number;
-  nom: string;
+  nom: string; // Titre renommé en nom
 }
 
 export default function Header() {
@@ -21,15 +21,18 @@ export default function Header() {
     projets_ada_id: "",
   });
 
-  // ---- Fetch des projets ----
+  // ---- Fetch des projets pour le select ----
   useEffect(() => {
     if (isForm) {
       fetch("/api/prj_etudiant")
         .then(res => res.json())
         .then(json => {
-          setIsProjets(Array.isArray(json) ? json : []);
+          const projetsTransformes = Array.isArray(json)
+            ? json.map(p => ({ id: p.id, nom: p.titre }))
+            : [];
+          setIsProjets(projetsTransformes);
         })
-        .catch(err => console.error(err));
+        .catch(err => console.error("Erreur fetch projets :", err));
     }
   }, [isForm]);
 
@@ -51,7 +54,7 @@ export default function Header() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...isFormData,
-          date_pub: isFormData.date_crea || null, // Adapté à ta table
+          date_pub: isFormData.date_crea || null, // date_pub par défaut
         }),
       });
 
@@ -132,10 +135,10 @@ export default function Header() {
                     required
                   >
                     <option value="">Sélectionner une promo</option>
-                    <option value="fatoumata_kebe">Fatoumata Kébé</option>
-                    <option value="frances_spence">Frances Spence</option>
-                    <option value="frida_khalo">Frida Kahlo</option>
-                    <option value="grace_hoper">Grace Hopper</option>
+                    <option value="1">Fatoumata Kébé</option>
+                    <option value="2">Frances Spence</option>
+                    <option value="3">Frida Kahlo</option>
+                    <option value="4">Grace Hopper</option>
                   </select>
                 </label>
 
@@ -149,7 +152,7 @@ export default function Header() {
                     required
                   >
                     <option value="">Sélectionner un projet</option>
-                    <option value="adaverse">Adaverse</option>
+                    <option value="1">Adaverse</option>
                     {isProjets.map(p => (
                       <option key={p.id} value={p.id}>
                         {p.nom}
@@ -164,6 +167,7 @@ export default function Header() {
                   name="date_crea"
                   value={isFormData.date_crea}
                   onChange={updateForm}
+                  required
                 />
 
                 <button type="submit">Envoyer</button>
