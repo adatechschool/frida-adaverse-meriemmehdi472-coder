@@ -245,7 +245,7 @@ export default function Header() {
 
       setIsFormData({
         titre: "",
-       lien_git: "",
+        lien_git: "",
         lien_demo: "",
         promotions_ada_id: "",
         projets_ada_id: "",
@@ -333,7 +333,7 @@ export default function Header() {
                     <option value="">Sélectionner un projet</option>
 
                     {/* Projet de base */}
-                    <option value="1">Adaverse</option>
+                    <option value="4">Ada Quiz</option>
 
                     {/* Projets fetchés */}
                     {isProjets.map(p => (
