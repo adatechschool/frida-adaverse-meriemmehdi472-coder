@@ -1,37 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import pkg from "pg";
-
-const { Pool } = pkg;
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-});
+import { db } from "@/db"; // ton client Drizzle
+import { prjetudiant } from "@/db/schema"; // ton schema Drizzle
 
 // ===========================
 // GET /api/prj_etudiant
 // ===========================
 export async function GET() {
   try {
-    const client = await pool.connect();
-
-    const query = `
-      SELECT pe.id, pe.titre, pe.adrs_web_perso, pe.illustration, pe.lien_git, pe.lien_demo,
-             pe.date_crea, pe.date_pub,
-             p.nom_prj AS nom_projet,
-             promo.nom AS nom_promo
-      FROM prj_etudiant pe
-      LEFT JOIN projets_ada p ON pe.projets_ada_id = p.id
-      LEFT JOIN promotions_ada promo ON pe.promotions_ada_id = promo.id
-      ORDER BY pe.id DESC;
-    `;
-
-    const result = await client.query(query);
-    client.release();
-
-    return NextResponse.json(result.rows, { status: 200 });
-  } catch (error) {
-    console.error("Erreur GET prj_etudiant :", error);
+    const projets = await db.select().from(prjetudiant);
+    return NextResponse.json(projets);
+  } catch (err) {
+    console.error("Erreur GET prj_etudiant :", err);
     return NextResponse.json(
       { error: "Impossible de récupérer les projets." },
       { status: 500 }
@@ -49,49 +28,51 @@ export async function POST(request: NextRequest) {
 
     const {
       titre,
-      adrs_web_perso = "",
       illustration = "",
+      adrs_web_perso = "",
       lien_git,
       lien_demo,
       date_crea,
+      date_pub = null,
       projets_ada_id,
       promotions_ada_id,
     } = data;
 
-    const client = await pool.connect();
+    // Log les valeurs des champs pour debugging
+    console.log({ titre, lien_git, lien_demo, date_crea, projets_ada_id, promotions_ada_id });
 
-    const query = `
-      INSERT INTO prj_etudiant
-      (titre, adrs_web_perso, illustration, lien_git, lien_demo,
-       date_crea, date_pub, projets_ada_id, promotions_ada_id)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-      RETURNING *;
-    `;
+    // Validation simple des champs obligatoires
+    if (!titre || !lien_git || !lien_demo || !date_crea || !projets_ada_id || !promotions_ada_id) {
+      return NextResponse.json(
+        { error: "Tous les champs obligatoires doivent être remplis." },
+        { status: 400 }
+      );
+    }
 
-    const values = [
-      titre,
-      adrs_web_perso,
-      illustration,
-      lien_git,
-      lien_demo,
-      date_crea,
-      date_crea, // date_pub = date_crea par défaut
-      projets_ada_id,
-      promotions_ada_id,
-    ];
-
-    const result = await client.query(query, values);
-    client.release();
+    const [newProjet] = await db
+      .insert(prjetudiant)
+      .values({
+        titre,
+        illustration,
+        adrs_web_perso,
+        lien_git,
+        lien_demo,
+        date_crea,
+        date_pub,
+        projets_ada_id: Number(projets_ada_id),
+        promotions_ada_id: Number(promotions_ada_id),
+      })
+      .returning();
 
     return NextResponse.json(
-      { message: "Projet ajouté", projet: result.rows[0] },
+      { message: "Projet ajouté avec succès", projet: newProjet },
       { status: 201 }
     );
   } catch (error) {
     console.error("Erreur POST prj_etudiant :", error);
     return NextResponse.json(
-      { error: "Erreur lors de l'ajout du projet" },
-      { status: 400 }
+      { error: "Erreur serveur lors de l'ajout du projet." },
+      { status: 500 }
     );
   }
 }
