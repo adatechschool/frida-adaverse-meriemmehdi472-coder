@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/db"; // ton client Drizzle
-import { prjetudiant } from "@/db/schema"; // ton schema Drizzle
+import { db } from "@/db"; 
+import { prjetudiant } from "@/db/schema"; 
 
-// GET /api/prj_etudiant
+
 export async function GET() {
   try {
     const projets = await db.select().from(prjetudiant);
@@ -16,36 +16,7 @@ export async function GET() {
   }
 }
 
-// // POST /api/prj_etudiant
-// export async function POST(req: NextRequest) {
-//   try {
-//     const data = await req.json();
-//     console.log("Données reçues :", data);
 
-//     const projet = await db
-//       .insert(prjetudiant)
-//       .values({
-//         titre: data.titre,
-//         lien_git: data.lien_git,
-//         lien_demo: data.lien_demo,
-//         promotions_ada_id: Number(data.promotions_ada_id),
-//         projets_ada_id: Number(data.projets_ada_id),
-//         date_pub: data.date_pub || null,
-//       })
-//       .returning();
-
-//     return NextResponse.json({ message: "Projet ajouté", projet: projet[0] });
-//   } catch (err: any) {
-//     console.error("Erreur POST prj_etudiant :", err);
-//     return NextResponse.json(
-//       { error: err.message },
-//       { status: 400 }
-//     );
-//   }
-// }
-
-
-// Fonction pour générer un slug
 function slugify(text: string) {
   return text
     .toLowerCase()

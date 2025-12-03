@@ -1,20 +1,40 @@
-import { db, prjetudiant } from "@/db";
+import { db, prjetudiant, promotionsada, projetsAda } from "@/db";
 import { eq } from "drizzle-orm";
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+
+export async function GET(_req: Request, context: { params: Promise<{ id: string }> }) {
+  const params = await context.params; // ← await ici
   const id = Number(params.id);
 
+  if (isNaN(id)) {
+    return new Response(JSON.stringify({ error: "ID invalide" }), { status: 400 });
+  }
+
   const result = await db
-    .select()
+    .select({
+      id: prjetudiant.id,
+      titre: prjetudiant.titre,
+      lien_git: prjetudiant.lien_git,
+      lien_demo: prjetudiant.lien_demo,
+      date_pub: prjetudiant.date_pub,
+      promotion: promotionsada.nom, 
+      projetAda: projetsAda.nom_prj,
+    })
     .from(prjetudiant)
+    .leftJoin(promotionsada, eq(prjetudiant.promotions_ada_id, promotionsada.id))
+    .leftJoin(projetsAda, eq(prjetudiant.projets_ada_id, projetsAda.id))
     .where(eq(prjetudiant.id, id));
 
-  if (result.length === 0) {
+  if (!result[0]) {
     return new Response(JSON.stringify({ error: "Projet introuvable" }), { status: 404 });
   }
 
-  return new Response(JSON.stringify(result[0]), {
-    headers: { "Content-Type": "application/json" }
+  const projet = {
+    ...result[0],
+    date_pub: result[0].date_pub ? new Date(result[0].date_pub).toISOString() : null,
+  };
+
+  return new Response(JSON.stringify(projet), {
+    headers: { "Content-Type": "application/json" },
   });
 }
-

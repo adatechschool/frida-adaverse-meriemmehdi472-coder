@@ -1,6 +1,8 @@
 "use client"
 import { useState, useEffect } from "react"
 import Header from "../components/Header"
+import Form from "../components/Form"
+import ProjectCard from "@/components/ProjectCard"
 
 interface ProjetEtudiant {
   id: number
@@ -9,54 +11,53 @@ interface ProjetEtudiant {
   lien_demo: string
   promotions_ada_id: string
   projets_ada_id: string
-  date_publication: string | null
+  date_pub: string | null
 }
 
 export default function Accueil() {
   const [projets, setProjets] = useState<ProjetEtudiant[]>([])
+  const [isForm, setIsForm] = useState(false)
+
+  const handleOpenForm = () => setIsForm(true)
+  const handleCloseForm = () => setIsForm(false)
 
   useEffect(() => {
-    // ⚡ API corrigée vers le bon endpoint singulier
     fetch("/api/prj_etudiant")
-      .then((res) => res.json())
-      .then((data) => setProjets(data))
-      .catch((err) => console.error(err))
+      .then(res => res.json())
+      .then(data => {
+        console.log("Projets récupérés :", data)
+        setProjets(data)
+      })
+      .catch(console.error)
   }, [])
 
-  // 1️⃣ Filtrer uniquement les projets publiés
+  // Filtrer uniquement les projets publiés
   const projetsPublies = projets.filter(
-    (p) => p.date_publication && p.date_publication !== ""
+    (p) => p.date_pub && p.date_pub !== ""
   )
 
-  // 2️⃣ Trier du plus récent au plus ancien
+  console.log("Projets publiés avant regroupement :", projetsPublies)
+
+  // Trier du plus récent au plus ancien
   const projetsTries = [...projetsPublies].sort(
     (a, b) =>
-      new Date(b.date_publication!).getTime() -
-      new Date(a.date_publication!).getTime()
+      new Date(b.date_pub!).getTime() - new Date(a.date_pub!).getTime()
   )
 
-  // 3️⃣ Grouper par projet Ada
+  // Grouper par projet Ada
   const groupes = projetsTries.reduce((acc, projet) => {
     if (!acc[projet.projets_ada_id]) acc[projet.projets_ada_id] = []
     acc[projet.projets_ada_id].push(projet)
     return acc
   }, {} as Record<string, ProjetEtudiant[]>)
 
-  // 4️⃣ URL du thumbnail GitHub
-  const getThumbnailUrl = (lienGit: string) => {
-    try {
-      const parts = lienGit.split("/")
-      const user = parts[3]
-      const repo = parts[4]
-      return `https://github.com/${user}/${repo}/blob/main/thumbnail.png?raw=true`
-    } catch {
-      return "/default-thumbnail.png"
-    }
-  }
-
   return (
     <div className="bg-gray-50 min-h-screen">
-      <Header />
+      
+      <Header onOpenForm={handleOpenForm} />
+
+      
+      {isForm && <Form onClose={handleCloseForm} />}
 
       <main className="max-w-6xl mx-auto px-4 py-10">
         <h1 className="text-3xl font-bold mb-8 text-gray-800">
@@ -71,56 +72,17 @@ export default function Accueil() {
 
             <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {items.map((projet) => (
-                <div
-                  key={projet.id}
-                  className="bg-white shadow-md rounded-xl overflow-hidden hover:shadow-lg transition-shadow"
-                >
-                  <img
-                    src={getThumbnailUrl(projet.lien_git)}
-                    onError={(e) =>
-                      (e.currentTarget.src = "/default-thumbnail.png")
-                    }
-                    alt={`Image du projet ${projet.titre}`}
-                    className="w-full h-40 object-cover"
-                  />
-
-                  <div className="p-4">
-                    <h3 className="text-lg font-bold text-gray-800">
-                      {projet.titre}
-                    </h3>
-
-                    <p className="text-sm text-gray-500 mt-1">
-                      Publié le :{" "}
-                      {new Date(projet.date_publication!).toLocaleDateString()}
-                    </p>
-
-                    <p className="text-sm text-gray-600">
-                      Promotion : {projet.promotions_ada_id}
-                    </p>
-
-                    <div className="flex flex-col mt-3 gap-1">
-                      <a
-                        href={projet.lien_git}
-                        target="_blank"
-                        className="text-blue-600 hover:underline text-sm"
-                      >
-                        GitHub →
-                      </a>
-                      <a
-                        href={projet.lien_demo}
-                        target="_blank"
-                        className="text-blue-600 hover:underline text-sm"
-                      >
-                        Démo →
-                      </a>
-                    </div>
-                  </div>
-                </div>
+                <ProjectCard key={projet.id} projet={projet} />
               ))}
             </div>
           </section>
         ))}
+
+        {projetsPublies.length === 0 && (
+          <p className="text-gray-500">Aucun projet publié pour le moment.</p>
+        )}
       </main>
     </div>
   )
 }
+
