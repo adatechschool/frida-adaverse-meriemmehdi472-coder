@@ -1,15 +1,7 @@
+// src/app/layout.tsx
+import './globals.css';
 
-import { ReactNode } from "react";
-
-export const metadata = {
-  title: "Adaverse",
-};
-
-interface RootLayoutProps {
-  children: ReactNode;
-}
-
-export default function RootLayout({ children }: RootLayoutProps) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr">
       <body>{children}</body>
