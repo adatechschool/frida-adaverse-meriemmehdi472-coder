@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/db"; 
-import { prjetudiant } from "@/db/schema"; 
+import { db } from "@/db";
+import { prjetudiant } from "@/db/schema";
 
-
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const projets = await db.select().from(prjetudiant);
     return NextResponse.json(projets);
@@ -15,7 +14,6 @@ export async function GET() {
     );
   }
 }
-
 
 function slugify(text: string) {
   return text
@@ -30,7 +28,6 @@ export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
 
-    // Validation
     if (!data.titre) throw new Error("Le titre est obligatoire.");
     if (!data.lien_git || !data.lien_demo)
       throw new Error("Les liens Git et Démo sont obligatoires.");
@@ -47,7 +44,6 @@ export async function POST(req: NextRequest) {
         illustration: data.illustration || "",
         lien_git: data.lien_git,
         lien_demo: data.lien_demo,
-        
         date_pub: null,
         promotions_ada_id: Number(data.promotions_ada_id),
         projets_ada_id: Number(data.projets_ada_id),
