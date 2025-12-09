@@ -1,9 +1,12 @@
+import { NextRequest } from "next/server";
 import { db, prjetudiant, promotionsada, projetsAda } from "@/db";
 import { eq } from "drizzle-orm";
 
-
-export async function GET(_req: Request, context: { params: Promise<{ id: string }> }) {
-  const params = await context.params; // ← await ici
+export async function GET(
+  _req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  const params = await context.params; // ATTENTION : params est un Promise
   const id = Number(params.id);
 
   if (isNaN(id)) {
@@ -17,7 +20,7 @@ export async function GET(_req: Request, context: { params: Promise<{ id: string
       lien_git: prjetudiant.lien_git,
       lien_demo: prjetudiant.lien_demo,
       date_pub: prjetudiant.date_pub,
-      promotion: promotionsada.nom, 
+      promotion: promotionsada.nom,
       projetAda: projetsAda.nom_prj,
     })
     .from(prjetudiant)
@@ -35,6 +38,6 @@ export async function GET(_req: Request, context: { params: Promise<{ id: string
   };
 
   return new Response(JSON.stringify(projet), {
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json" }
   });
 }
