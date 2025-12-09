@@ -8,6 +8,8 @@ export default function Header({ onOpenForm }: { onOpenForm: () => void }) {
 
   return (
     <>
+
+
       {/* Header principal */}
       <header className="w-full sticky top-0 z-50 bg-gray-900/95 backdrop-blur-xl border-b border-gray-800/50 shadow-2xl shadow-indigo-900/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
