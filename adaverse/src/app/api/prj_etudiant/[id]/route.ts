@@ -6,10 +6,10 @@ export async function GET(
   _req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-  const params = await context.params; // ATTENTION : params est un Promise
-  const id = Number(params.id);
+  const { id } = await context.params;
+  const numId = Number(id);
 
-  if (isNaN(id)) {
+  if (isNaN(numId)) {
     return new Response(JSON.stringify({ error: "ID invalide" }), { status: 400 });
   }
 
@@ -26,7 +26,7 @@ export async function GET(
     .from(prjetudiant)
     .leftJoin(promotionsada, eq(prjetudiant.promotions_ada_id, promotionsada.id))
     .leftJoin(projetsAda, eq(prjetudiant.projets_ada_id, projetsAda.id))
-    .where(eq(prjetudiant.id, id));
+    .where(eq(prjetudiant.id, numId));
 
   if (!result[0]) {
     return new Response(JSON.stringify({ error: "Projet introuvable" }), { status: 404 });
@@ -34,10 +34,12 @@ export async function GET(
 
   const projet = {
     ...result[0],
-    date_pub: result[0].date_pub ? new Date(result[0].date_pub).toISOString() : null,
+    date_pub: result[0].date_pub
+      ? new Date(result[0].date_pub).toISOString()
+      : null,
   };
 
   return new Response(JSON.stringify(projet), {
-    headers: { "Content-Type": "application/json" }
+    headers: { "Content-Type": "application/json" },
   });
 }
